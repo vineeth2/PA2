@@ -16,10 +16,20 @@ serverSocket.bind(("", serverPort))
 serverSocket.listen(1)
 print('The server is ready to receive at port: "{0}"'.format(serverPort))
 stringTweet = ""
+usernameTuple = ()
 
 while True:
 	connectionSocket, addr = serverSocket.accept()
 	clientReception = connectionSocket.recv(1024).decode()
+	if clientReception[0:4] == "user":
+		newUsername = clientReception[4:]
+		if newUsername in usernameTuple:
+			loginFailed = "username illegal, connection refused."
+			connectionSocket.send(loginFailed.encode())
+		else:
+			loginSuccess = "username legal, connection established."
+			connectionSocket.send(loginSuccess.encode())
+			usernameTuple += (newUsername,)
 	if clientReception[0:2] == "-u":
 		success = "Tweet was successfully uploaded"
 		connectionSocket.send(success.encode())
