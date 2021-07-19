@@ -25,21 +25,30 @@ while True:
 		newUsername = clientReception[4:]
 		if newUsername in usernameTuple:
 			loginFailed = "username illegal, connection refused."
+			failFlag = "F"
+			loginFailed = failFlag + loginFailed
 			connectionSocket.send(loginFailed.encode())
 		else:
 			loginSuccess = "username legal, connection established."
+			successFlag = "S"
+			loginSuccess = successFlag + loginSuccess
 			connectionSocket.send(loginSuccess.encode())
 			usernameTuple += (newUsername,)
-	if clientReception[0:2] == "-u":
-		success = "Tweet was successfully uploaded"
-		connectionSocket.send(success.encode())
-		stringTweet = clientReception[2:]
+	if clientReception[0:4] == "getu":
+		usernameString = ""
+		for username in usernameTuple:
+			usernameString += username + " "
+		connectionSocket.send(usernameString.encode())
+	#if clientReception[0:2] == "-u":
+	#	success = "Tweet was successfully uploaded"
+	#	connectionSocket.send(success.encode())
+	#	stringTweet = clientReception[2:]
 
-	if clientReception[0:2] == "-d":
-		if stringTweet == "":
-			emptyStr = ""
-			connectionSocket.send(emptyStr.encode())
-		else:
-			connectionSocket.send(stringTweet.encode())
-	connectionSocket.close()
+	#if clientReception[0:2] == "-d":
+	#	if stringTweet == "":
+	#		emptyStr = ""
+	#		connectionSocket.send(emptyStr.encode())
+	#	else:
+	#		connectionSocket.send(stringTweet.encode())
+	#connectionSocket.close()
 	
