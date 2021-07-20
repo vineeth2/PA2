@@ -17,9 +17,8 @@ serverSocket.listen(1)
 print('The server is ready to receive at port: "{0}"'.format(serverPort))
 stringTweet = ""
 usernameTuple = ()
-
+connectionSocket, addr = serverSocket.accept()
 while True:
-	connectionSocket, addr = serverSocket.accept()
 	clientReception = connectionSocket.recv(1024).decode()
 	if clientReception[0:4] == "user":
 		newUsername = clientReception[4:]
@@ -39,6 +38,7 @@ while True:
 		for username in usernameTuple:
 			usernameString += username + " "
 		connectionSocket.send(usernameString.encode())
+	
 	#if clientReception[0:2] == "-u":
 	#	success = "Tweet was successfully uploaded"
 	#	connectionSocket.send(success.encode())

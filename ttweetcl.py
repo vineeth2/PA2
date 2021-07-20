@@ -72,10 +72,33 @@ def userInput(clientSocket):
         print("client command not found.")
         userInput(clientSocket)
 
-#def uploadSys(userInputList):
-#    if len(userInputList) == 3:
-#        sentence = message
-#        clientSocket.send(sentence.encode())
+def uploadSys(clientSocket, userInputList):
+    if len(userInputList) != 3:
+        print("length not correct")
+        userInput(clientSocket)
+    tweet = userInputList[1]
+    hashtag = userInputList[2]
+    if len(tweet) > 150 or len(tweet) < 1: #TODO fix empty edge case
+        print("tweet too long/empty")
+        userInput(clientSocket)
+    if hashtag[0] != '#':
+        print("Did not start with a #")
+        userInput(clientSocket)
+    hashtag_list = hashtag.split('#')
+    if len(hashtag_list) > 6:
+        print("too many hashtags")
+        userInput(clientSocket)
+    for htag in hashtag_list[1:]:
+        if len(htag) > 14:
+            print("hashtag too long")
+            userInput(clientSocket)
+        if not re.match('^[a-zA-Z0-9_]+$', htag):
+            print("only alphanumeric characters allowed")
+            userInput(clientSocket)
+
+    #sentence = message
+    #clientSocket.send(sentence.encode())
+    userInput(clientSocket)
 
 #def downloadSys(serverName, serverPort, message):
 #    try:
