@@ -78,22 +78,25 @@ def uploadSys(clientSocket, userInputList):
         userInput(clientSocket)
     tweet = userInputList[1]
     hashtag = userInputList[2]
-    if len(tweet) > 150 or len(tweet) < 1: #TODO fix empty edge case
-        print("tweet too long/empty")
+    if len(tweet) > 150 or len(tweet) < 1 or tweet == None: #TODO fix empty edge case
+        if len(tweet) > 150:
+            print("message length illegal, connection refused.")
+        if len(tweet) < 1 or tweet == None:
+            print("message format illegal.")
         userInput(clientSocket)
     if hashtag[0] != '#':
-        print("Did not start with a #")
+        print("hashtag illegal format, connection refused.")
         userInput(clientSocket)
     hashtag_list = hashtag.split('#')
     if len(hashtag_list) > 6:
-        print("too many hashtags")
+        print("operation failed: sub <hashtag> failed, already exists or exceeds 3 limitation")
         userInput(clientSocket)
     for htag in hashtag_list[1:]:
         if len(htag) > 14:
-            print("hashtag too long")
+            print("hashtag illegal format, connection refused.")
             userInput(clientSocket)
         if not re.match('^[a-zA-Z0-9_]+$', htag):
-            print("only alphanumeric characters allowed")
+            print("hashtag illegal format, connection refused.")
             userInput(clientSocket)
 
     #sentence = message
