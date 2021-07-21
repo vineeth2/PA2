@@ -131,7 +131,6 @@ def exitSys(clientSocket, userInputList):
     clientSocket.send(exitSentence.encode())
     serverResponse = clientSocket.recv(1024).decode()
     print(serverResponse)
-    clientSocket.close() # TODO: Add functionality to remove user information from server
 
 if __name__ == "__main__":
     main()

@@ -5,9 +5,24 @@ import re
 from _thread import *
 import threading
 
-thread_lock = threading.Lock()
+stringTweet = ""
+usernameTuple = ()
 
-def Main():
+def client_handler(connectionSocket):
+	connectionOnline = True
+	while connectionOnline:
+		clientReception = connectionSocket.recv(1024).decode()
+		if clientReception[0:4] == "user":
+			userFunction(connectionSocket, clientReception)
+		if clientReception[0:4] == "getu":
+			getuFunction(connectionSocket, clientReception)
+		if clientReception[0:4] == "exit":
+			connectionOnline = False
+	exitString = "bye bye"
+	connectionSocket.send(exitString.encode())
+	connectionSocket.close() #TODO: remove user information from server
+
+def main():
 	if len(sys.argv) != 2:
 		print("Error: Invalid Input. Wrong number of parameters")
 		exit()
@@ -19,20 +34,12 @@ def Main():
 
 	serverSocket = socket(AF_INET, SOCK_STREAM)
 	serverSocket.bind(("", serverPort))
-	serverSocket.listen(1)
+	serverSocket.listen()
 	print('The server is ready to receive at port: "{0}"'.format(serverPort))
-	stringTweet = ""
-	usernameTuple = ()
 	while True:
 		connectionSocket, addr = serverSocket.accept()
-		thread_lock.acquire()
-		clientReception = connectionSocket.recv(1024).decode()
-		if clientReception[0:4] == "user":
-			start_new_thread(userFunction, (connectionSocket, clientReception, usernameTuple))
-		if clientReception[0:4] == "getu":
-			start_new_thread(getuFunction, (connectionSocket, clientReception, usernameTuple))
-		if clientReception[0:4] == "exit":
-			start_new_thread(exitFunction, (connectionSocket, clientReception))
+		thread = threading.Thread(target=client_handler, args=(connectionSocket,))
+		thread.start()
 	
 		#if clientReception[0:2] == "-u":
 		#	success = "Tweet was successfully uploaded"
@@ -47,8 +54,9 @@ def Main():
 		#		connectionSocket.send(stringTweet.encode())
 		#connectionSocket.close()
 	
-def userFunction(connectionSocket, clientReception, usernameTuple):
+def userFunction(connectionSocket, clientReception):
 	newUsername = clientReception[4:]
+	global usernameTuple
 	if newUsername in usernameTuple:
 		loginFailed = "username illegal, connection refused."
 		failFlag = "F"
@@ -58,20 +66,16 @@ def userFunction(connectionSocket, clientReception, usernameTuple):
 		loginSuccess = "username legal, connection established."
 		successFlag = "S"
 		loginSuccess = successFlag + loginSuccess
-		connectionSocket.send(loginSuccess.encode())
 		usernameTuple += (newUsername,)
+		connectionSocket.send(loginSuccess.encode())
 
-def getuFunction(connectionSocket, clientReception, usernameTuple):
+def getuFunction(connectionSocket, clientReception):
 	usernameString = ""
+	global usernameTuple
 	for username in usernameTuple:
 		usernameString += username + " "
 	connectionSocket.send(usernameString.encode())
 
-def exitFunction(connectionSocket, clientReception):
-	exitString = "bye bye"
-	connectionSocket.send(exitString.encode())
-	thread_lock.release()
-	connectionSocket.close()
 
 if __name__ == '__main__':
-    Main()
+    main()
