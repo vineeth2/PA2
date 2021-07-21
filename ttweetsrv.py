@@ -6,21 +6,23 @@ from _thread import *
 import threading
 
 stringTweet = ""
-usernameTuple = ()
+usernameDictionary = dict()
 
-def client_handler(connectionSocket):
+def client_handler(connectionSocket, address):
 	connectionOnline = True
 	while connectionOnline:
 		clientReception = connectionSocket.recv(1024).decode()
 		if clientReception[0:4] == "user":
-			userFunction(connectionSocket, clientReception)
+			userFunction(connectionSocket, clientReception, address)
 		if clientReception[0:4] == "getu":
 			getuFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "exit":
 			connectionOnline = False
 	exitString = "bye bye"
 	connectionSocket.send(exitString.encode())
-	connectionSocket.close() #TODO: remove user information from server
+	global usernameDictionary
+	del(usernameDictionary[address])
+	connectionSocket.close()
 
 def main():
 	if len(sys.argv) != 2:
@@ -37,8 +39,8 @@ def main():
 	serverSocket.listen()
 	print('The server is ready to receive at port: "{0}"'.format(serverPort))
 	while True:
-		connectionSocket, addr = serverSocket.accept()
-		thread = threading.Thread(target=client_handler, args=(connectionSocket,))
+		connectionSocket, address = serverSocket.accept()
+		thread = threading.Thread(target=client_handler, args=(connectionSocket, address))
 		thread.start()
 	
 		#if clientReception[0:2] == "-u":
@@ -54,10 +56,13 @@ def main():
 		#		connectionSocket.send(stringTweet.encode())
 		#connectionSocket.close()
 	
-def userFunction(connectionSocket, clientReception):
+def userFunction(connectionSocket, clientReception, address):
 	newUsername = clientReception[4:]
-	global usernameTuple
-	if newUsername in usernameTuple:
+	global usernameDictionary
+	usernameList = []
+	for username, hashtags, tweets in usernameDictionary.values():
+		usernameList.append(username)
+	if newUsername in usernameList:
 		loginFailed = "username illegal, connection refused."
 		failFlag = "F"
 		loginFailed = failFlag + loginFailed
@@ -66,13 +71,16 @@ def userFunction(connectionSocket, clientReception):
 		loginSuccess = "username legal, connection established."
 		successFlag = "S"
 		loginSuccess = successFlag + loginSuccess
-		usernameTuple += (newUsername,)
+		usernameDictionary[address] = (newUsername, [], []) #Item[0] = username, Item[1] = subscribed Hashtags, Item[2] = tweets sent by user
 		connectionSocket.send(loginSuccess.encode())
 
 def getuFunction(connectionSocket, clientReception):
 	usernameString = ""
-	global usernameTuple
-	for username in usernameTuple:
+	global usernameDictionary
+	usernameList = []
+	for username, hashtags, tweets in usernameDictionary.values():
+		usernameList.append(username)
+	for username in usernameList:
 		usernameString += username + " "
 	connectionSocket.send(usernameString.encode())
 
