@@ -98,9 +98,8 @@ def uploadSys(clientSocket, userInputList):
         if not re.match('^[a-zA-Z0-9_]+$', htag):
             print("hashtag illegal format, connection refused.")
             userInput(clientSocket)
-
-    #sentence = message
-    #clientSocket.send(sentence.encode())
+    message = "twee" + tweet + hashtag
+    clientSocket.send(message.encode())
     userInput(clientSocket)
 
 #def downloadSys(serverName, serverPort, message):
@@ -124,6 +123,17 @@ def usersSys(clientSocket, userInputList):
     usernameList = usernames.split()
     for username in usernameList:
         print(username)
+    userInput(clientSocket)
+    
+def tweetsSys(clientSocket, userInputList):
+    if (len(userInputList) != 2):
+        print("length illegal, connection refused.")
+        userInput(clientSocket)
+    username = userInputList[1]
+    message = "gett" + username
+    clientSocket.send(message.encode())
+    serverResponse = clientSocket.recv(2048).decode()
+    print(serverResponse)
     userInput(clientSocket)
 
 def exitSys(clientSocket, userInputList):

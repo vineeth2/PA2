@@ -6,14 +6,18 @@ from _thread import *
 import threading
 
 stringTweet = ""
-usernameTuple = ()
-
+clients = {}
+database = {}
 def client_handler(connectionSocket):
 	connectionOnline = True
 	while connectionOnline:
 		clientReception = connectionSocket.recv(1024).decode()
 		if clientReception[0:4] == "user":
 			userFunction(connectionSocket, clientReception)
+		if clientReception[0:4] == "twee":
+			tweeFunction(connectionSocket, clientReception)
+		if clientReception[0:4] == "gett":
+			gettFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "getu":
 			getuFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "exit":
@@ -34,7 +38,7 @@ def main():
 
 	serverSocket = socket(AF_INET, SOCK_STREAM)
 	serverSocket.bind(("", serverPort))
-	serverSocket.listen()
+	serverSocket.listen(5)
 	print('The server is ready to receive at port: "{0}"'.format(serverPort))
 	while True:
 		connectionSocket, addr = serverSocket.accept()
@@ -53,11 +57,23 @@ def main():
 		#	else:
 		#		connectionSocket.send(stringTweet.encode())
 		#connectionSocket.close()
-	
+def addToDatabase(connectionSocket, tweet, hashtag_list):
+	global database
+	global clients
+	if clients[connectionSocket] not in database:
+		database[clients[connectionSocket]] = [tweet], [hashtag_list]
+	else:
+		database[clients[connectionSocket]][0].append(tweet)
+		database[clients[connectionSocket]][1].append(hashtag_list)
+def getAllTweetsByUsername(username):
+	global database
+	global clients
+	return database[username] #returns a tuple (tweet_list, hashtag_list)
+
 def userFunction(connectionSocket, clientReception):
 	newUsername = clientReception[4:]
-	global usernameTuple
-	if newUsername in usernameTuple:
+	global clients
+	if clients and newUsername in clients.values():
 		loginFailed = "username illegal, connection refused."
 		failFlag = "F"
 		loginFailed = failFlag + loginFailed
@@ -66,13 +82,37 @@ def userFunction(connectionSocket, clientReception):
 		loginSuccess = "username legal, connection established."
 		successFlag = "S"
 		loginSuccess = successFlag + loginSuccess
-		usernameTuple += (newUsername,)
+		clients[connectionSocket] = newUsername
 		connectionSocket.send(loginSuccess.encode())
+def tweeFunction(connectionSocket, clientReception):
+	global database
+	full_message = clientReception[4:]
+	full_message_list = full_message.split("#")
+	tweet = full_message_list[0]
+	hashtag_list = full_message_list[1:]
+	#for hashtag in hashtag_list: 
+	#	hashtag = "#" + hashtag
+	addToDatabase(connectionSocket, tweet, hashtag_list)
+	print(database)
 
+def gettFunction(connectionSocket, clientReception): #gettweets
+	username = clientReception[4:]
+	hashtag = ""
+	message = ""
+	tweet_list, hashtag_lists = getAllTweetsByUsername(username)
+	print(tweet_list)
+	for i in range(len(tweet_list)):
+		hashtag_list = hashtag_lists[i]
+		for j in range(len(hashtag_list)):
+			hashtag += "#" + hashtag_list[j]
+		message += username + ": \"" + tweet_list[i] + '\" ' + hashtag + '\n'
+		hashtag = ""
+	connectionSocket.send(message.encode())
+	
 def getuFunction(connectionSocket, clientReception):
 	usernameString = ""
-	global usernameTuple
-	for username in usernameTuple:
+	global clients
+	for username in clients.values():
 		usernameString += username + " "
 	connectionSocket.send(usernameString.encode())
 
