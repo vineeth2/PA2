@@ -24,9 +24,7 @@ def client_handler(connectionSocket):
 			connectionOnline = False
 	exitString = "bye bye"
 	connectionSocket.send(exitString.encode())
-	global usernameDictionary
-	del(usernameDictionary[address])
-	connectionSocket.close()
+	connectionSocket.close() #TODO: remove user information from server
 
 def main():
 	if len(sys.argv) != 2:
@@ -44,7 +42,7 @@ def main():
 	print('The server is ready to receive at port: "{0}"'.format(serverPort))
 	while True:
 		connectionSocket, address = serverSocket.accept()
-		thread = threading.Thread(target=client_handler, args=(connectionSocket, address))
+		thread = threading.Thread(target=client_handler, args=(connectionSocket,))
 		thread.start()
 	
 		#if clientReception[0:2] == "-u":
