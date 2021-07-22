@@ -190,7 +190,7 @@ def unsuFunction(connectionSocket, clientReception):
     global clients
     hashtag = clientReception[4:]
 
-    returnMessage = "no"
+    returnMessage = ""
     if (hashtag == "ALL"):
         clients[connectionSocket][1].clear()    # if hashtag is #ALL, unsub from all hashtags in list
         returnMessage = "operation success"
