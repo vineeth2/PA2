@@ -135,16 +135,15 @@ def userFunction(connectionSocket, clientReception):
 def tweeFunction(connectionSocket, clientReception):
 	global database
 	full_message = clientReception[4:]
-	full_message_list = full_message.split("#")
-	tweet = full_message_list[0]
-	hashtag_list = full_message_list[1:]
-	t, h = tuple(full_message.split('#', 1))
+	full_message_list = full_message.split('"')
+	tweet = full_message_list[1]
+	hashtag_list = full_message_list[2]
 	username, _ = clients[connectionSocket]
-	formated_tweet = username + ': "' + t + '" ' + "#" + h
+	formated_tweet = username + ': "' + tweet + '" ' + hashtag_list
+	send_tweet = username + ' "' + tweet + '" ' + hashtag_list
 	addToDatabase(connectionSocket, tweet, hashtag_list)
 	broadcast(connectionSocket, 
 	findSubscribedHashtags(connectionSocket, hashtag_list), formated_tweet)
-	#print(database)
 
 def gettFunction(connectionSocket, clientReception): #gettweets
 	username = clientReception[4:]

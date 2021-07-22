@@ -72,8 +72,8 @@ def userInput(clientSocket):
         print("client command not found.")
         userInput(clientSocket)
 
-def uploadSys(clientSocket, userInputList):
-    userInputList = userInputList.split('"')
+def uploadSys(clientSocket, userInputString):
+    userInputList = userInputString.split('"')
     if len(userInputList) != 3:
         print("length not correct")
         userInput(clientSocket)
@@ -99,7 +99,7 @@ def uploadSys(clientSocket, userInputList):
         if not re.match('^[a-zA-Z0-9_]+$', htag):
             print("hashtag illegal format, connection refused.")
             userInput(clientSocket)
-    message = "twee" + tweet + hashtag
+    message = "twee" + '"' + tweet + '"' + hashtag
     clientSocket.send(message.encode())
     userInput(clientSocket)
 
