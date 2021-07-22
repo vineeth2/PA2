@@ -139,11 +139,11 @@ def tweetsSys(clientSocket, userInputList):
 
 def subscribeSys(clientSocket, userInputList):
     if (len(userInputList) != 2):
-        print("length illegal, connection refused.")
+        print("length illegal, connection refused.") # TODO: Whats the correct error message?
         userInput(clientSocket)
 
     hashtag = userInputList[1]
-    if (hashtag == null or hashtag.length < 2):
+    if (hashtag == None or len(hashtag) < 2):
         print("hashtag illegal format, connection refused.")    # checks if hashtag CANNOT be properly formatted.
         userInput(clientSocket)
     if (hashtag[0] != "#"):
@@ -157,7 +157,14 @@ def subscribeSys(clientSocket, userInputList):
         userInput(clientSocket)
     message = "subs" + hashtag[1:]
     clientSocket.send(message.encode())
+    serverResponse = clientSocket.recv(2048).decode()
+    print(serverResponse)
     userInput(clientSocket)
+
+def unsubscribeSys(clientSocket, userInputList):
+    if (len(userInputList) != 2):
+        print("length illegal, connection refused.")
+        userInput(clientSocket)
 
 def exitSys(clientSocket, userInputList):
     exitSentence = "exit"

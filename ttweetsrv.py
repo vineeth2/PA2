@@ -139,15 +139,18 @@ def subsFunction(connectionSocket, clientReception):
     global clients
     hashtag = clientReception[4:]
 
+    returnMessage = ""
     if (len(clients[connectionSocket][1]) == 3 or hashtag in clients[connectionSocket][1]):
-        subFailed = "operation failed: sub <hashtag> failed, already exists or exceeds 3 limitation."
-        subFailed = "F" + subFailed
-        connectionSocket.send(subFailed.encode())
+        returnMessage = "operation failed: sub <hashtag> failed, already exists or exceeds 3 limitation."
+        returnMessage = "F" + returnMessage
     else:
         clients[connectionSocket][1].append(hashtag)
-        subSuccess = "successfully subscribed to {0}".format(hashtag)
-        subSuccess = "S" + subSuccess
-        connectionSocket.send(subSuccess.encode())
+        returnMessage = "successfully subscribed to {0}".format(hashtag)
+        returnMessage = "S" + returnMessage
+
+    print(clients)
+
+    connectionSocket.send(returnMessage.encode())
 
 
 
