@@ -8,6 +8,7 @@ import threading
 stringTweet = ""
 clients = {}
 database = {}
+timelineDatabase = {}
 def client_handler(connectionSocket):
 	connectionOnline = True
 	while connectionOnline:
@@ -24,6 +25,8 @@ def client_handler(connectionSocket):
 		    subsFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "unsu":
 		    unsuFunction(connectionSocket, clientReception)
+		if clientReception[0:4] == "time":
+			timelineFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "exit":
 			connectionOnline = False
 	exitString = "bye bye"
@@ -75,7 +78,10 @@ def addToDatabase(connectionSocket, tweet, hashtag_list):
 def getAllTweetsByUsername(username):
 	global database
 	global clients
-	return database[username] #returns a tuple (tweet_list, hashtag_list)
+	if username in database.keys():
+		return database[username] #returns a tuple (tweet_list, hashtag_list)
+	else:
+		return ([],[])
 
 def findSubscribedHashtags(connectionSocket, incoming_hashtags):
 	global clients
@@ -90,10 +96,12 @@ def findSubscribedHashtags(connectionSocket, incoming_hashtags):
 	return socket_dictionary
 
 def broadcast(connectionSocket, socket_dictionary, tweet):
+	global timelineDatabase
 	for sock in socket_dictionary.keys():
-		if sock == connectionSocket:
-			continue
-		sock.send(tweet.encode())
+		if sock in timelineDatabase.keys():
+			timelineDatabase[sock].append(tweet)
+		else:
+			timelineDatabase[sock] = [tweet]
 
 
 def userFunction(connectionSocket, clientReception):
@@ -132,7 +140,7 @@ def tweeFunction(connectionSocket, clientReception):
 	hashtag_list = full_message_list[1:]
 	t, h = tuple(full_message.split('#', 1))
 	username, _ = clients[connectionSocket]
-	formated_tweet = username + " " + t + " #" + h
+	formated_tweet = username + ': "' + t + '" ' + "#" + h
 	addToDatabase(connectionSocket, tweet, hashtag_list)
 	broadcast(connectionSocket, 
 	findSubscribedHashtags(connectionSocket, hashtag_list), formated_tweet)
@@ -144,12 +152,18 @@ def gettFunction(connectionSocket, clientReception): #gettweets
 	message = ""
 	tweet_list, hashtag_lists = getAllTweetsByUsername(username)
 	#print(tweet_list)
-	for i in range(len(tweet_list)):
-		hashtag_list = hashtag_lists[i]
-		for j in range(len(hashtag_list)):
-			hashtag += "#" + hashtag_list[j]
-		message += username + ": \"" + tweet_list[i] + '\" ' + hashtag + '\n'
-		hashtag = ""
+	if len(tweet_list) == 0 and len(hashtag_lists) == 0:
+		message = "no user " + username + " tweets in the system"
+	else:
+		for i in range(len(tweet_list)):
+			hashtag_list = hashtag_lists[i]
+			for j in range(len(hashtag_list)):
+				hashtag += "#" + hashtag_list[j]
+			if i == len(tweet_list) - 1:
+				message += username + ": \"" + tweet_list[i] + '\" ' + hashtag
+			else:
+				message += username + ": \"" + tweet_list[i] + '\" ' + hashtag + '\n'
+			hashtag = ""
 	connectionSocket.send(message.encode())
 	
 def getuFunction(connectionSocket, clientReception):
@@ -185,6 +199,19 @@ def unsuFunction(connectionSocket, clientReception):
         returnMessage = "operation success"
 
     connectionSocket.send(returnMessage.encode())
+
+def timelineFunction(connectionSocket, clientReception):
+	global timelineDatabase
+	message = ""
+	if connectionSocket not in timelineDatabase.keys():
+		message = "User has not had anything on their timeline."
+	else:
+		for tweet in timelineDatabase[connectionSocket]:
+			if tweet == timelineDatabase[connectionSocket][-1]:
+				message += tweet
+			else:
+				message += tweet + "\n"
+	connectionSocket.send(message.encode())
 
 
 if __name__ == '__main__':
