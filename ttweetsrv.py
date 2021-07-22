@@ -75,6 +75,25 @@ def getAllTweetsByUsername(username):
 	global clients
 	return database[username] #returns a tuple (tweet_list, hashtag_list)
 
+def findSubscribedHashtags(connectionSocket, incoming_hashtags):
+	global clients
+	socket_dictionary = {}
+	socket_list = list(clients.keys())
+	user_list, hashtag_lists = zip(*clients.values())
+	for i in range(len(socket_list)):
+		hashtag_list = hashtag_lists[i]
+		for hashtag in hashtag_list:
+			if hashtag in incoming_hashtags or hashtag == "ALL":
+				socket_dictionary[socket_list[i]] = user_list[i]
+	return socket_dictionary
+
+def broadcast(connectionSocket, socket_dictionary, tweet):
+	for sock in socket_dictionary.keys():
+		if sock == connectionSocket:
+			continue
+		sock.send(tweet.encode())
+
+
 def userFunction(connectionSocket, clientReception):
 	newUsername = clientReception[4:]
 	global clients
@@ -109,17 +128,20 @@ def tweeFunction(connectionSocket, clientReception):
 	full_message_list = full_message.split("#")
 	tweet = full_message_list[0]
 	hashtag_list = full_message_list[1:]
-	#for hashtag in hashtag_list: 
-	#	hashtag = "#" + hashtag
+	t, h = tuple(full_message.split('#', 1))
+	username, _ = clients[connectionSocket]
+	formated_tweet = username + " " + t + " #" + h
 	addToDatabase(connectionSocket, tweet, hashtag_list)
-	print(database)
+	broadcast(connectionSocket, 
+	findSubscribedHashtags(connectionSocket, hashtag_list), formated_tweet)
+	#print(database)
 
 def gettFunction(connectionSocket, clientReception): #gettweets
 	username = clientReception[4:]
 	hashtag = ""
 	message = ""
 	tweet_list, hashtag_lists = getAllTweetsByUsername(username)
-	print(tweet_list)
+	#print(tweet_list)
 	for i in range(len(tweet_list)):
 		hashtag_list = hashtag_lists[i]
 		for j in range(len(hashtag_list)):
@@ -148,7 +170,7 @@ def subsFunction(connectionSocket, clientReception):
         returnMessage = "successfully subscribed to {0}".format(hashtag)
         returnMessage = "S" + returnMessage
 
-    print(clients)
+    #print(clients)
 
     connectionSocket.send(returnMessage.encode())
 
