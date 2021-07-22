@@ -95,8 +95,6 @@ def findSubscribedHashtags(connectionSocket, incoming_hashtags):
 def broadcast(connectionSocket, socket_dictionary, tweet):
 	global timelineDatabase
 	for sock in socket_dictionary.keys():
-		if sock == connectionSocket:
-			continue
 		if sock in timelineDatabase.keys():
 			timelineDatabase[sock].append(tweet)
 		else:
