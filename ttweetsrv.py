@@ -78,7 +78,10 @@ def addToDatabase(connectionSocket, tweet, hashtag_list):
 def getAllTweetsByUsername(username):
 	global database
 	global clients
-	return database[username] #returns a tuple (tweet_list, hashtag_list)
+	if username in database.keys():
+		return database[username] #returns a tuple (tweet_list, hashtag_list)
+	else:
+		return ([],[])
 
 def findSubscribedHashtags(connectionSocket, incoming_hashtags):
 	global clients
@@ -149,15 +152,18 @@ def gettFunction(connectionSocket, clientReception): #gettweets
 	message = ""
 	tweet_list, hashtag_lists = getAllTweetsByUsername(username)
 	#print(tweet_list)
-	for i in range(len(tweet_list)):
-		hashtag_list = hashtag_lists[i]
-		for j in range(len(hashtag_list)):
-			hashtag += "#" + hashtag_list[j]
-		if i == len(tweet_list) - 1:
-			message += username + ": \"" + tweet_list[i] + '\" ' + hashtag
-		else:
-			message += username + ": \"" + tweet_list[i] + '\" ' + hashtag + '\n'
-		hashtag = ""
+	if len(tweet_list) == 0 and len(hashtag_lists) == 0:
+		message = "no user " + username + " tweets in the system"
+	else:
+		for i in range(len(tweet_list)):
+			hashtag_list = hashtag_lists[i]
+			for j in range(len(hashtag_list)):
+				hashtag += "#" + hashtag_list[j]
+			if i == len(tweet_list) - 1:
+				message += username + ": \"" + tweet_list[i] + '\" ' + hashtag
+			else:
+				message += username + ": \"" + tweet_list[i] + '\" ' + hashtag + '\n'
+			hashtag = ""
 	connectionSocket.send(message.encode())
 	
 def getuFunction(connectionSocket, clientReception):
