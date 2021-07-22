@@ -166,13 +166,9 @@ def subsFunction(connectionSocket, clientReception):
     returnMessage = ""
     if (len(clients[connectionSocket][1]) == 3 or hashtag in clients[connectionSocket][1]):
         returnMessage = "operation failed: sub <hashtag> failed, already exists or exceeds 3 limitation."
-        returnMessage = "F" + returnMessage
     else:
         clients[connectionSocket][1].append(hashtag)
         returnMessage = "operation success"
-        returnMessage = "S" + returnMessage
-
-    #print(clients)
 
     connectionSocket.send(returnMessage.encode())
 
@@ -184,11 +180,9 @@ def unsuFunction(connectionSocket, clientReception):
     if (hashtag == "ALL"):
         clients[connectionSocket][1].clear()    # if hashtag is #ALL, unsub from all hashtags in list
         returnMessage = "operation success"
-        returnMessage = "S" + returnMessage
     elif (hashtag in clients[connectionSocket][1]):
         clients[connectionSocket][1].remove(hashtag)    # only remove hashtag if it exists.
         returnMessage = "operation success"
-        returnMessage = "S" + returnMessage
 
     connectionSocket.send(returnMessage.encode())
 

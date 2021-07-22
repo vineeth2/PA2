@@ -183,7 +183,7 @@ def unsubscribeSys(clientSocket, userInputList):
     message = "unsu" + hashtag[1:]
     clientSocket.send(message.encode())
     serverResponse = clientSocket.recv(2048).decode()
-    if (len(serverResponse) > 0):
+    if (len(serverResponse) > 2):
         print(serverResponse)
     userInput(clientSocket)
 
