@@ -155,7 +155,10 @@ def gettFunction(connectionSocket, clientReception): #gettweets
 		hashtag_list = hashtag_lists[i]
 		for j in range(len(hashtag_list)):
 			hashtag += "#" + hashtag_list[j]
-		message += username + ": \"" + tweet_list[i] + '\" ' + hashtag + '\n'
+		if i == len(tweet_list) - 1:
+			message += username + ": \"" + tweet_list[i] + '\" ' + hashtag
+		else:
+			message += username + ": \"" + tweet_list[i] + '\" ' + hashtag + '\n'
 		hashtag = ""
 	connectionSocket.send(message.encode())
 	
