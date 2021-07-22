@@ -20,6 +20,8 @@ def client_handler(connectionSocket):
 			gettFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "getu":
 			getuFunction(connectionSocket, clientReception)
+		if clientReception[0:4] == "subs":
+		    subsFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "exit":
 			connectionOnline = False
 	exitString = "bye bye"
@@ -82,7 +84,8 @@ def userFunction(connectionSocket, clientReception):
 		loginSuccess = "username legal, connection established."
 		successFlag = "S"
 		loginSuccess = successFlag + loginSuccess
-		clients[connectionSocket] = newUsername
+		subbed_hashtags = []
+		clients[connectionSocket] = newUsername, subbed_hashtags
 		connectionSocket.send(loginSuccess.encode())
 def tweeFunction(connectionSocket, clientReception):
 	global database
@@ -115,6 +118,21 @@ def getuFunction(connectionSocket, clientReception):
 	for username in clients.values():
 		usernameString += username + " "
 	connectionSocket.send(usernameString.encode())
+
+def subsFunction(connectionSocket, clientReception):
+    global clients
+    hashtag = clientReception[4:]
+
+    if (len(clients[connectionSocket][1]) == 3 or hashtag in clients[connectionSocket][1]):
+        subFailed = "operation failed: sub <hashtag> failed, already exists or exceeds 3 limitation."
+        subFailed = "F" + subFailed
+        connectionSocket.send(subFailed.encode())
+    else:
+        clients[connectionSocket][1].append(hashtag)
+        subSuccess = "successfully subscribed to {0}".format(hashtag)
+        subSuccess = "S" + subSuccess
+        connectionSocket.send(subSuccess.encode())
+
 
 
 if __name__ == '__main__':
