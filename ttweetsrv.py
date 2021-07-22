@@ -26,7 +26,8 @@ def client_handler(connectionSocket):
 			connectionOnline = False
 	exitString = "bye bye"
 	connectionSocket.send(exitString.encode())
-	connectionSocket.close() #TODO: remove user information from server
+	del(clients[connectionSocket])
+	connectionSocket.close() 
 
 def main():
 	if len(sys.argv) != 2:
@@ -75,11 +76,23 @@ def getAllTweetsByUsername(username):
 def userFunction(connectionSocket, clientReception):
 	newUsername = clientReception[4:]
 	global clients
-	if clients and newUsername in clients.values():
-		loginFailed = "username illegal, connection refused."
-		failFlag = "F"
-		loginFailed = failFlag + loginFailed
-		connectionSocket.send(loginFailed.encode())
+	if clients:
+		usernameEqualFlag = 0
+		for username, hashtag_list in clients.values():
+			if newUsername == username:
+				usernameEqualFlag = 1
+		if usernameEqualFlag:
+			loginFailed = "username illegal, connection refused."
+			failFlag = "F"
+			loginFailed = failFlag + loginFailed
+			connectionSocket.send(loginFailed.encode())
+		else:
+			loginSuccess = "username legal, connection established."
+			successFlag = "S"
+			loginSuccess = successFlag + loginSuccess
+			subbed_hashtags = []
+			clients[connectionSocket] = newUsername, subbed_hashtags
+			connectionSocket.send(loginSuccess.encode())
 	else:
 		loginSuccess = "username legal, connection established."
 		successFlag = "S"
@@ -87,6 +100,7 @@ def userFunction(connectionSocket, clientReception):
 		subbed_hashtags = []
 		clients[connectionSocket] = newUsername, subbed_hashtags
 		connectionSocket.send(loginSuccess.encode())
+
 def tweeFunction(connectionSocket, clientReception):
 	global database
 	full_message = clientReception[4:]
@@ -115,7 +129,7 @@ def gettFunction(connectionSocket, clientReception): #gettweets
 def getuFunction(connectionSocket, clientReception):
 	usernameString = ""
 	global clients
-	for username in clients.values():
+	for username, hastag_list in clients.values():
 		usernameString += username + " "
 	connectionSocket.send(usernameString.encode())
 
