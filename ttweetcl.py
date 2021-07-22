@@ -55,7 +55,7 @@ def userInput(clientSocket):
     userInputString = input()
     userInputList = userInputString.split()
     if userInputList[0] == "tweet":
-        uploadSys(clientSocket, userInputList)
+        uploadSys(clientSocket, userInputString) #Input string here for later split
     elif userInputList[0] == "subscribe":
         subscribeSys(clientSocket, userInputList)
     elif userInputList[0] == "unsubscribe":
@@ -73,11 +73,12 @@ def userInput(clientSocket):
         userInput(clientSocket)
 
 def uploadSys(clientSocket, userInputList):
+    userInputList = userInputList.split('"')
     if len(userInputList) != 3:
         print("length not correct")
         userInput(clientSocket)
     tweet = userInputList[1]
-    hashtag = userInputList[2]
+    hashtag = userInputList[2].strip() #Removes whitespace due to split
     if len(tweet) > 150 or len(tweet) < 1 or tweet == None: #TODO fix empty edge case
         if len(tweet) > 150:
             print("message length illegal, connection refused.")

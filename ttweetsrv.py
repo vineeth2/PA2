@@ -63,11 +63,13 @@ def main():
 def addToDatabase(connectionSocket, tweet, hashtag_list):
 	global database
 	global clients
-	if clients[connectionSocket] not in database:
-		database[clients[connectionSocket]] = [tweet], [hashtag_list]
+	usernameKey, subbed_hashtags = clients[connectionSocket]
+	if usernameKey not in database.keys():
+		database[usernameKey] = [tweet], [hashtag_list]
 	else:
-		database[clients[connectionSocket]][0].append(tweet)
-		database[clients[connectionSocket]][1].append(hashtag_list)
+		database[usernameKey][0].append(tweet)
+		database[usernameKey][1].append(hashtag_list)
+
 def getAllTweetsByUsername(username):
 	global database
 	global clients
