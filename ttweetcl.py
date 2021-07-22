@@ -166,6 +166,28 @@ def unsubscribeSys(clientSocket, userInputList):
         print("length illegal, connection refused.")
         userInput(clientSocket)
 
+    hashtag = userInputList[1]
+    if (hashtag == None or len(hashtag) < 2):
+        print("hashtag illegal format, connection refused.")    # checks if hashtag CANNOT be properly formatted.
+        userInput(clientSocket)
+    if (hashtag[0] != "#"):
+        print("hashtag illegal format, connection refused.")    # checks if hashtag not preceded by "#"
+        userInput(clientSocket)
+    if len(hashtag[1:]) > 14:
+        print("hashtag illegal format, connection refused.")    # checks if hashtag length is too long
+        userInput(clientSocket)
+    if not re.match('^[a-zA-Z0-9_]+$', hashtag[1:]):
+        print("hashtag illegal format, connection refused.")    # checks if hashtag consists of letters and numbers
+        userInput(clientSocket)
+
+    message = "unsu" + hashtag[1:]
+    clientSocket.send(message.encode())
+    serverResponse = clientSocket.recv(2048).decode()
+    if (len(serverResponse) > 0):
+        print(serverResponse)
+    userInput(clientSocket)
+
+
 def exitSys(clientSocket, userInputList):
     exitSentence = "exit"
     clientSocket.send(exitSentence.encode())
