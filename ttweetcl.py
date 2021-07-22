@@ -187,11 +187,21 @@ def unsubscribeSys(clientSocket, userInputList):
         print(serverResponse)
     userInput(clientSocket)
 
+def timelineSys(clientSocket, userInputList):
+    if (len(userInputList) != 1):
+        print("length illegal, connection refused.")
+        userInput(clientSocket)
+    message = "time"
+    clientSocket.send(message.encode())
+    serverResponse = clientSocket.recv(2048).decode()
+    print(serverResponse)
+    userInput(clientSocket)
 
 def exitSys(clientSocket, userInputList):
     exitSentence = "exit"
     clientSocket.send(exitSentence.encode())
     serverResponse = clientSocket.recv(1024).decode()
+    serverResponse = serverResponse.strip()
     print(serverResponse)
 
 if __name__ == "__main__":
