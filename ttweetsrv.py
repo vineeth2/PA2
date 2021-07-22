@@ -22,6 +22,8 @@ def client_handler(connectionSocket):
 			getuFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "subs":
 		    subsFunction(connectionSocket, clientReception)
+		if clientReception[0:4] == "unsu":
+		    unsuFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "exit":
 			connectionOnline = False
 	exitString = "bye bye"
@@ -145,13 +147,28 @@ def subsFunction(connectionSocket, clientReception):
         returnMessage = "F" + returnMessage
     else:
         clients[connectionSocket][1].append(hashtag)
-        returnMessage = "successfully subscribed to {0}".format(hashtag)
+        returnMessage = "operation success"
         returnMessage = "S" + returnMessage
 
     print(clients)
 
     connectionSocket.send(returnMessage.encode())
 
+def unsuFunction(connectionSocket, clientReception):
+    global clients
+    hashtag = clientReception[4:]
+
+    returnMessage = "no"
+    if (hashtag == "ALL"):
+        clients[connectionSocket][1].clear()    # if hashtag is #ALL, unsub from all hashtags in list
+        returnMessage = "operation success"
+        returnMessage = "S" + returnMessage
+    elif (hashtag in clients[connectionSocket][1]):
+        clients[connectionSocket][1].remove(hashtag)    # only remove hashtag if it exists.
+        returnMessage = "operation success"
+        returnMessage = "S" + returnMessage
+
+    connectionSocket.send(returnMessage.encode())
 
 
 if __name__ == '__main__':
