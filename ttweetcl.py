@@ -29,19 +29,6 @@ def main():
         exit()  
     login(clientSocket, username)
     
-    #message = sys.argv[1]
-    #if (sys.argv[1] == "-u" and len(sys.argv[4]) > 150):
-    #    print("message length illegal, connection refused.")
-    #    exit()
-    #
-    #if (sys.argv[1] == "-u" and len(sys.argv[4]) <= 150):
-    #    message = message + sys.argv[4]
-    #    uploadSys(serverName, serverPort, message)
-    #
-    #else:
-    #    downloadSys(serverName, serverPort, message)
-
-
 def login(clientSocket, username):  
     clientSocket.send(username.encode())
     usernameResponse = clientSocket.recv(4096).decode()
@@ -55,7 +42,7 @@ def userInput(clientSocket):
     userInputString = input()
     userInputList = userInputString.split()
     if userInputList[0] == "tweet":
-        uploadSys(clientSocket, userInputString) #Input string here for later split
+        uploadSys(clientSocket, userInputString) 
     elif userInputList[0] == "subscribe":
         subscribeSys(clientSocket, userInputList)
     elif userInputList[0] == "unsubscribe":
@@ -78,8 +65,8 @@ def uploadSys(clientSocket, userInputString):
         print("length not correct")
         userInput(clientSocket)
     tweet = userInputList[1]
-    hashtag = userInputList[2].strip() #Removes whitespace due to split
-    if len(tweet) > 150 or len(tweet) < 1 or tweet == None: #TODO fix empty edge case
+    hashtag = userInputList[2].strip() # Removes whitespace due to split
+    if len(tweet) > 150 or len(tweet) < 1 or tweet == None: 
         if len(tweet) > 150:
             print("message length illegal, connection refused.")
         if len(tweet) < 1 or tweet == None:
@@ -103,20 +90,6 @@ def uploadSys(clientSocket, userInputString):
     clientSocket.send(message.encode())
     userInput(clientSocket)
 
-#def downloadSys(serverName, serverPort, message):
-#    try:
-#        clientSocket = socket(AF_INET, SOCK_STREAM)
-#        clientSocket.settimeout(5)
-#        clientSocket.connect((serverName, serverPort))
-#        sentence = message
-#        clientSocket.send(sentence.encode())
-#        newSentence = clientSocket.recv(1024)
-#        print('Output: "{0}"'.format(newSentence.decode()))
-#        clientSocket.close()
-#    except:
-#        print("error: server ip invalid, connection refused.")
-#        exit()
-
 def usersSys(clientSocket, userInputList):
     getUsersSentence = "getu"
     clientSocket.send(getUsersSentence.encode())
@@ -139,7 +112,7 @@ def tweetsSys(clientSocket, userInputList):
 
 def subscribeSys(clientSocket, userInputList):
     if (len(userInputList) != 2):
-        print("length illegal, connection refused.") # TODO: Whats the correct error message?
+        print("length illegal, connection refused.") 
         userInput(clientSocket)
 
     hashtag = userInputList[1]

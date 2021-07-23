@@ -52,19 +52,7 @@ def main():
 		connectionSocket, address = serverSocket.accept()
 		thread = threading.Thread(target=client_handler, args=(connectionSocket,))
 		thread.start()
-	
-		#if clientReception[0:2] == "-u":
-		#	success = "Tweet was successfully uploaded"
-		#	connectionSocket.send(success.encode())
-		#	stringTweet = clientReception[2:]
 
-		#if clientReception[0:2] == "-d":
-		#	if stringTweet == "":
-		#		emptyStr = ""
-		#		connectionSocket.send(emptyStr.encode())
-		#	else:
-		#		connectionSocket.send(stringTweet.encode())
-		#connectionSocket.close()
 def addToDatabase(connectionSocket, tweet, hashtag_list):
 	global database
 	global clients
@@ -150,7 +138,6 @@ def gettFunction(connectionSocket, clientReception): #gettweets
 	hashtag = ""
 	message = ""
 	tweet_list, hashtag_lists = getAllTweetsByUsername(username)
-	#print(tweet_list)
 	if len(tweet_list) == 0 and len(hashtag_lists) == 0:
 		message = "no user " + username + " tweets in the system"
 	else:
