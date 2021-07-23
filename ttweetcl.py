@@ -22,10 +22,10 @@ def main():
     try:
         clientSocket = socket(AF_INET, SOCK_STREAM)
         
-        clientSocket.settimeout(5)
+        clientSocket.settimeout(15)
         clientSocket.connect((serverName, serverPort))
     except:
-        print("error: server ip invalid, connection refused.")
+        print("connection error, please check your server: Connection refused")
         exit()  
     login(clientSocket, username)
     
@@ -44,7 +44,7 @@ def main():
 
 def login(clientSocket, username):  
     clientSocket.send(username.encode())
-    usernameResponse = clientSocket.recv(1024).decode()
+    usernameResponse = clientSocket.recv(4096).decode()
     printUsernameResponse = usernameResponse[1:]
     print("{0}".format(printUsernameResponse))
     if (usernameResponse[0] == "F"):
@@ -120,7 +120,7 @@ def uploadSys(clientSocket, userInputString):
 def usersSys(clientSocket, userInputList):
     getUsersSentence = "getu"
     clientSocket.send(getUsersSentence.encode())
-    usernames = clientSocket.recv(1024).decode()
+    usernames = clientSocket.recv(4096).decode()
     usernameList = usernames.split()
     for username in usernameList:
         print(username)
@@ -133,7 +133,7 @@ def tweetsSys(clientSocket, userInputList):
     username = userInputList[1]
     message = "gett" + username
     clientSocket.send(message.encode())
-    serverResponse = clientSocket.recv(2048).decode()
+    serverResponse = clientSocket.recv(4096).decode()
     print(serverResponse)
     userInput(clientSocket)
 
@@ -157,7 +157,7 @@ def subscribeSys(clientSocket, userInputList):
         userInput(clientSocket)
     message = "subs" + hashtag[1:]
     clientSocket.send(message.encode())
-    serverResponse = clientSocket.recv(2048).decode()
+    serverResponse = clientSocket.recv(4096).decode()
     print(serverResponse)
     userInput(clientSocket)
 
@@ -182,7 +182,7 @@ def unsubscribeSys(clientSocket, userInputList):
 
     message = "unsu" + hashtag[1:]
     clientSocket.send(message.encode())
-    serverResponse = clientSocket.recv(2048).decode()
+    serverResponse = clientSocket.recv(4096).decode()
     if (len(serverResponse) > 2):
         print(serverResponse)
     userInput(clientSocket)
@@ -193,14 +193,14 @@ def timelineSys(clientSocket, userInputList):
         userInput(clientSocket)
     message = "time"
     clientSocket.send(message.encode())
-    serverResponse = clientSocket.recv(2048).decode()
+    serverResponse = clientSocket.recv(4096).decode()
     print(serverResponse)
     userInput(clientSocket)
 
 def exitSys(clientSocket, userInputList):
     exitSentence = "exit"
     clientSocket.send(exitSentence.encode())
-    serverResponse = clientSocket.recv(1024).decode()
+    serverResponse = clientSocket.recv(4096).decode()
     serverResponse = serverResponse.strip()
     print(serverResponse)
 

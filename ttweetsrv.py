@@ -12,7 +12,7 @@ timelineDatabase = {}
 def client_handler(connectionSocket):
 	connectionOnline = True
 	while connectionOnline:
-		clientReception = connectionSocket.recv(1024).decode()
+		clientReception = connectionSocket.recv(4096).decode()
 		if clientReception[0:4] == "user":
 			userFunction(connectionSocket, clientReception)
 		if clientReception[0:4] == "twee":
@@ -210,6 +210,7 @@ def timelineFunction(connectionSocket, clientReception):
 				message += tweet
 			else:
 				message += tweet + "\n"
+	print(timelineDatabase.values())
 	connectionSocket.send(message.encode())
 
 
