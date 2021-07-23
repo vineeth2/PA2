@@ -197,7 +197,6 @@ def timelineFunction(connectionSocket, clientReception):
 				message += tweet
 			else:
 				message += tweet + "\n"
-	print(timelineDatabase.values())
 	connectionSocket.send(message.encode())
 
 
